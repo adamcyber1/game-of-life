@@ -1,0 +1,89 @@
+/**
+ * Game of Life - JS & CSS
+ * http://pmav.eu
+ */
+
+ body {
+    font-family: "Verdana", sans-serif;
+    font-size: 14px;
+  }
+  
+  #title {
+    font: bold 46px/40px "Arial", sans-serif;
+    background: #DDDDDD;
+    letter-spacing: -3px;
+    margin: 0 0 10px 0;
+    color: #222222;
+    padding: 6px;
+  }
+  
+  #title a {
+   text-decoration: none;
+   color: #222222;
+  }
+  
+  #world {
+   float: left;
+  }
+  
+  #world table {
+    border-collapse: collapse;
+  }
+  
+  #world table td {
+    border: 1px solid #EEEEEE;
+    height: 9px;
+    width: 6px;
+  }
+  
+  #patterns {
+   padding: 0 0 0 820px;
+  }
+  
+  #patterns h2 {
+   margin: 0;
+  }
+  
+  #patterns ul {
+   margin: 6px 0 0 0;
+   padding: 0 0 0 16px;
+  }
+  
+  #patterns a {
+   color: #000000;
+  }
+  
+  /**
+   * Webkit CSS Hack
+   * http://dustinbrewer.com/css-hackgetting-safari-to-behave/
+   */
+  @media screen and (-webkit-min-device-pixel-ratio:0) {
+    #world table td {
+      height: 6px;
+    }
+  }
+  
+  #control {
+    margin: 10px 0 0 0;
+    padding: 4px 0 0 0;
+    clear: both;
+  }
+  
+  #control input {
+    border-bottom: 2px solid #333333;
+    border-right: 2px solid #333333;
+    border-top: 2px solid #AAAAAA;
+    border-left: 2px solid #AAAAAA;
+    background: #FFFFFF;
+    font-size: 24px;
+  }
+  
+  #control input:active {
+    border-bottom: 2px solid #AAAAAA;
+    border-right: 2px solid #AAAAAA;
+    border-top: 2px solid #333333;
+    border-left: 2px solid #333333;
+  }
+  
+  
+ 
