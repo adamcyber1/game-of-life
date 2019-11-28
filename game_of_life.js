@@ -1,8 +1,11 @@
 "use strict"
 
+/**
+ * A standard Conway's Game of Life Implementation
+ */
 class Life {
 
-    constructor(columns= 90, rows = 48, resolution = 100) {
+    constructor(columns= 100, rows = 100) {
         this._table = null;
         this._columns = columns;
         this._rows = rows;
@@ -21,6 +24,9 @@ class Life {
         this.create_grid()
     }
 
+    /**
+    * Randomly places live cells through the map
+    */
     seed_random() {
         this._state = []
         this._new_state = []
@@ -28,11 +34,14 @@ class Life {
             this._state[i] = [];
             this._new_state[i] = [];
             for (var j = 0; j < this._columns; j++) {
-              this._state[i][j] = Math.floor(Math.random()*1.06);
+              this._state[i][j] = Math.floor(Math.random()*1.08);
             }
           }
     }
 
+    /**
+    * Constructs the map using basic HTML elements (table, tr, td)
+    */
     create_grid() {
         let table = document.createElement('table');
         this._cells = [];
@@ -57,6 +66,9 @@ class Life {
           this._table.appendChild(table);
     }
 
+    /**
+    * Iterates the game state by 1 step.
+    */
     iterate() {
         this._new_state = [...this._state];
 
@@ -74,6 +86,11 @@ class Life {
 
     }
 
+    /**
+    * Applies the Game of Life rule's to a cell
+    * @param {number} i cell row
+    * @param {number} j cell column
+    */
     check_state(i, j) {
 
         var neighbours = this.get_neighbours(i, j);
@@ -90,6 +107,11 @@ class Life {
         }
     }
 
+    /**
+    * Determines the number of live neighbours a cell has
+    * @param {number} i cell row
+    * @param {number} j cell column
+    */
     get_neighbours(i, j) {
         var neighbours = 0;
 
@@ -114,11 +136,16 @@ class Life {
         return neighbours;
     }
 
-    /* Interface Handlers */
+    /**
+    * Event handler: Single step button.
+    */
     button_iterate() {
         this.iterate()
     }
 
+    /**
+    * Event handler: Continuous run button.
+    */
     button_run(button) {
         this._running = !this._running;
         if (this._running) {
@@ -133,6 +160,9 @@ class Life {
     
 };
 
+/**
+ * A Cell - the unit of life in this game.
+ */
 class Cell {
     constructor() {
         this._element = document.createElement('td')
@@ -176,6 +206,11 @@ class Cell {
     }
 };
 
+/**
+ * Color codes
+ * @enum {string}
+ */
+//TODO make this an enum
 var Colors = {
     dead : '#FFFFFF',
     visited : '#B5ECA2',
@@ -184,6 +219,9 @@ var Colors = {
 
 var life = new Life();
 
+/**
+ * Starts Life when the page loads
+ */
 window.onload = function() {
     life.init();
   }
