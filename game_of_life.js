@@ -5,7 +5,7 @@
  */
 class Life {
 
-    constructor(columns= 100, rows = 100) {
+    constructor(columns= 100, rows = 50) {
         this._table = null;
         this._columns = columns;
         this._rows = rows;
@@ -13,7 +13,8 @@ class Life {
         this._new_state = null
         this._cells = null
         this._running = false;
-        this._waittime = 10;
+        this._wait_time = 100;
+        this._mouse = false;
     }
 
     init() {
@@ -22,6 +23,11 @@ class Life {
         this._table = document.getElementById('world')
         this.seed_random()
         this.create_grid()
+    }
+
+    clear() {
+        this._state = Array.from(Array(this._rows), _ => Array(this._columns).fill(0));
+        this.iterate();
     }
 
     /**
@@ -81,7 +87,7 @@ class Life {
         this._state = this._new_state;
 
         if (this._running) {
-            setTimeout(function() { life.iterate(); }, this._waittime);
+            setTimeout(function() { life.iterate(); }, this._wait_time);
         }
 
     }
@@ -148,14 +154,45 @@ class Life {
     */
     button_run(button) {
         this._running = !this._running;
-        if (this._running) {
-            while(true)
-            {
-                this.iterate();
-                setTimeout()
-            }
-        }
 
+        button.value = button.value == 'Run' ? 'Stop' : 'Run';
+
+        if (this._running) {
+            this.iterate();
+        }
+    }
+
+    /**
+    * Event handler: Clear map button.
+    */
+    button_clear() {
+        this.clear();
+    }
+
+    /**
+    * Event handler: Randomly seed map button.
+    */
+    button_seed() {
+        this.seed_random();
+        this.iterate();
+    }
+
+    mouse_down_handler(i, j, event) {
+        this._mouse = true;
+        this._cells[i][j].toggle_state();
+    }
+
+    mouse_up_handler() {
+        this._mouse = false;
+    }
+
+    /**
+    * Event handler: Mouse click over Cell
+    */
+    mouse_over_handler(i, j, event) {
+        if (this._mouse) {
+            this._cells[i][j].toggle_state();
+        }
     }
     
 };
@@ -167,6 +204,27 @@ class Cell {
     constructor() {
         this._element = document.createElement('td')
         this._state = 0;
+
+        /*
+        this.add_event('mousedown',  function(x, y) {
+            return function (event) {
+              Life.mouse_down_handler(x, y, event);
+            }
+          }(i, j));
+
+        this.add_event('mouseup',  function(x, y) {
+        return function (event) {
+            Life.mouse_up_handler();
+        }
+        }(i, j));
+
+        this.add_event('mouseover',  function(x, y) {
+            return function (event) {
+                Life.mouse_over_handler(x, y, event);
+            }
+            }(i, j));
+        */
+          
     }
 
     set_background_color(color) {
@@ -203,6 +261,14 @@ class Cell {
 
     set state(state) {
         this._state = state
+    }
+
+    add_event(event, handler, capture) {
+        if (/msie/i.test(navigator.userAgent)) {
+            this._element.attachEvent('on' + event, handler);
+          } else {
+            this._addEventListener(event, handler, capture);
+          }
     }
 };
 
