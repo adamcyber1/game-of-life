@@ -9,9 +9,9 @@ class Life {
         this._table = null;
         this._columns = columns;
         this._rows = rows;
-        this._state = null
-        this._new_state = null
-        this._cells = null
+        this._state = null;
+        this._new_state = null;
+        this._cells = null;
         this._running = false;
         this._wait_time = 100;
         this._mouse = false;
@@ -204,6 +204,7 @@ class Cell {
     constructor() {
         this._element = document.createElement('td')
         this._state = 0;
+        this._element.addEventListener('click', function(e){this.toggle_state();}.bind(this, event))
 
         /*
         this.add_event('mousedown',  function(x, y) {
