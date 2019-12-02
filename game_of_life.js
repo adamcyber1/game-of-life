@@ -9,8 +9,6 @@ class Life {
         this._table = null;
         this._columns = columns;
         this._rows = rows;
-        this._state = null;
-        this._new_state = null;
         this._cells = null;
         this._running = false;
         this._wait_time = 100;
@@ -18,31 +16,29 @@ class Life {
     }
 
     init() {
-        this._state = null;
-        this._new_state = null;
         this._table = document.getElementById('world')
-        this.seed_random()
         this.create_grid()
+        //this.seed_random()
     }
 
     clear() {
-        this._state = Array.from(Array(this._rows), _ => Array(this._columns).fill(0));
-        this.iterate();
+        for (var i = 0; i < this._rows; i++) {
+            for (var j = 0; j < this._columns; j++) {
+                this._cells[i][j].make_dead();
+                this._cells[i][j]._new_state = 0;
+            }
+        }
     }
 
     /**
     * Randomly places live cells through the map
     */
     seed_random() {
-        this._state = []
-        this._new_state = []
-        for (var i = 0; i < this._rows; i++) {
-            this._state[i] = [];
-            this._new_state[i] = [];
+          for (var i = 0; i < this._rows; i++) {
             for (var j = 0; j < this._columns; j++) {
-              this._state[i][j] = Math.floor(Math.random()*1.08);
+                this._cells[i][j]._state = Math.floor(Math.random()*1.08);
             }
-          }
+        }
     }
 
     /**
@@ -57,11 +53,6 @@ class Life {
             this._cells[i] = [];
             for (let j = 0; j < this._columns; j++) {
               let cell = new Cell();
-              if (this._state[i][j] == 1) { 
-              cell.set_background_color(Colors.alive)
-              } else {
-                cell.set_background_color(Colors.dead)
-              }
       
               line.appendChild(cell.element);
               this._cells[i][j] = cell; 
@@ -76,7 +67,6 @@ class Life {
     * Iterates the game state by 1 step.
     */
     iterate() {
-        this._new_state = [...this._state];
 
         for (var i = 0; i < this._rows; i++) {
             for (var j = 0; j < this._columns; j++) {
@@ -84,7 +74,12 @@ class Life {
             }
         }
 
-        this._state = this._new_state;
+        for (var i = 0; i < this._rows; i++) {
+            for (var j = 0; j < this._columns; j++) {
+                
+                this._cells[i][j]._state = this._cells[i][j]._new_state;
+            }
+        }
 
         if (this._running) {
             setTimeout(function() { life.iterate(); }, this._wait_time);
@@ -102,12 +97,12 @@ class Life {
         var neighbours = this.get_neighbours(i, j);
 
         if (neighbours == 0 || neighbours == 1 || neighbours > 3) {
-            this._new_state[i][j] = 0;
+            this._cells[i][j]._new_state = 0;
             this._cells[i][j].make_dead();
         }
         else { 
             if (neighbours == 3) {
-            this._new_state[i][j] = 1;
+            this._cells[i][j]._new_state = 1;
             this._cells[i][j].make_alive();
             }
         }
@@ -121,22 +116,22 @@ class Life {
     get_neighbours(i, j) {
         var neighbours = 0;
 
-        if (this._state[i - 1] != undefined) {
+        if (this._cells[i - 1] != undefined) {
           neighbours +=
-          (this._state[i - 1][j - 1] == undefined ? 0 : this._state[i - 1][j - 1] ? 1 : 0) +
-          (this._state[i - 1][j] == undefined ? 0 : this._state[i - 1][j] ? 1 : 0) +
-          (this._state[i - 1][j + 1] == undefined ? 0 : this._state[i - 1][j + 1] ? 1 : 0);
+          (this._cells[i - 1][j - 1] == undefined ? 0 : this._cells[i - 1][j - 1].state) +
+          (this._cells[i - 1][j] == undefined ? 0 : this._cells[i - 1][j].state) +
+          (this._cells[i - 1][j + 1] == undefined ? 0 : this._cells[i - 1][j + 1].state);
         }
     
         neighbours +=
-        (this._state[i][j - 1] == undefined ? 0 : this._state[i][j - 1] ? 1 : 0) +
-        (this._state[i][j + 1] == undefined ? 0 : this._state[i][j + 1] ? 1 : 0);
+        (this._cells[i][j - 1] == undefined ? 0 : this._cells[i][j - 1].state) +
+        (this._cells[i][j + 1] == undefined ? 0 : this._cells[i][j + 1].state);
     
-        if (this._state[i + 1] != undefined) {
+        if (this._cells[i + 1] != undefined) {
           neighbours +=
-          (this._state[i + 1][j - 1] == undefined ? 0 : this._state[i + 1][j - 1] ? 1 : 0) +
-          (this._state[i + 1][j] == undefined ? 0 : this._state[i + 1][j] ? 1 : 0) +
-          (this._state[i + 1][j + 1] == undefined ? 0 : this._state[i + 1][j + 1] ? 1 : 0);
+          (this._cells[i + 1][j - 1] == undefined ? 0 : this._cells[i + 1][j - 1].state) +
+          (this._cells[i + 1][j] == undefined ? 0 : this._cells[i + 1][j].state) +
+          (this._cells[i + 1][j + 1] == undefined ? 0 : this._cells[i + 1][j + 1].state);
         }
     
         return neighbours;
@@ -204,6 +199,7 @@ class Cell {
     constructor() {
         this._element = document.createElement('td')
         this._state = 0;
+        this._new_state = 0;
         this._element.addEventListener('click', function(e){this.toggle_state();}.bind(this, event))
 
         /*
