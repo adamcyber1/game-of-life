@@ -13,21 +13,30 @@ class Life {
         this._running = false;
         this._wait_time = 100;
         this._mouse = false;
+
+        this._generation_display = null;
+        this._generation = 0;
     }
 
     init() {
-        this._table = document.getElementById('world')
-        this.create_grid()
-        //this.seed_random()
+        this._table = document.getElementById('world');
+        this._generation_display = document.getElementById('generation');
+
+        this.create_grid();
+        this.seed_random();
+        this.iterate();
+
     }
 
     clear() {
         for (var i = 0; i < this._rows; i++) {
             for (var j = 0; j < this._columns; j++) {
                 this._cells[i][j].make_dead();
-                this._cells[i][j]._new_state = 0;
+                this._cells[i][j].new_state = 0;
             }
         }
+
+        this._generation = 0;
     }
 
     /**
@@ -201,27 +210,7 @@ class Cell {
         this._state = 0;
         this._new_state = 0;
         this._element.addEventListener('click', function(e){this.toggle_state();}.bind(this, event))
-
-        /*
-        this.add_event('mousedown',  function(x, y) {
-            return function (event) {
-              Life.mouse_down_handler(x, y, event);
-            }
-          }(i, j));
-
-        this.add_event('mouseup',  function(x, y) {
-        return function (event) {
-            Life.mouse_up_handler();
-        }
-        }(i, j));
-
-        this.add_event('mouseover',  function(x, y) {
-            return function (event) {
-                Life.mouse_over_handler(x, y, event);
-            }
-            }(i, j));
-        */
-          
+   
     }
 
     set_background_color(color) {
@@ -258,6 +247,10 @@ class Cell {
 
     set state(state) {
         this._state = state
+    }
+
+    set new_state(new_state) {
+        this._new_State = new_state
     }
 
     add_event(event, handler, capture) {
