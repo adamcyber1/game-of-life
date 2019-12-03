@@ -36,8 +36,9 @@ class Life {
     clear() {
         for (var i = 0; i < this._rows; i++) {
             for (var j = 0; j < this._columns; j++) {
-                this._cells[i][j].make_dead();
-                this._cells[i][j].new_state = 0;
+                this._cells[i][j]._state = 0;
+                this._cells[i][j].set_background_color(Colors.dead);
+                this._cells[i][j]._new_state = 0;
             }
         }
 
@@ -213,6 +214,7 @@ class Life {
     */
     button_clear() {
         this.clear();
+        this.iterate();
     }
 
     /**
@@ -283,9 +285,11 @@ class Cell {
     toggle_state() {
         if (this._state == 0) {
             this._state = 1;
+            this._new_state = 1;
             this.set_background_color(Colors.alive)
         } else {
             this._state = 0;
+            this._new_state = 0;
             this.set_background_color(Colors.dead)
         }
     }
