@@ -5,7 +5,7 @@
  */
 class Life {
 
-    constructor(columns = 100, rows = 100) {
+    constructor(columns = 40, rows = 40) {
         this._table = null;
         this._columns = columns;
         this._rows = rows;
@@ -107,6 +107,7 @@ class Life {
             for (var j = 0; j < this._columns; j++) {
 
                 this._cells[i][j]._state = this._cells[i][j]._new_state;
+                this._cells[i][j].update();
             }
         }
 
@@ -138,7 +139,7 @@ class Life {
                 }
 
                 this._cells[i][j]._new_state = 0;
-                this._cells[i][j].make_dead();
+                this._cells[i][j].set_background_color(Colors.dead);
             }
         } else if (!this._cells[i][j].alive()) {
 
@@ -149,12 +150,12 @@ class Life {
                 }
 
                 this._cells[i][j]._new_state = 1;
-                this._cells[i][j].make_alive();
+                this._cells[i][j].set_background_color(Colors.alive);
             }
 
         } else {
             this._cells[i][j]._new_state = 0;
-            this._cells[i][j].make_dead();
+            this._cells[i][j].set_background_color(Colors.dead);
         }
     }
 
@@ -254,6 +255,13 @@ class Cell {
 
     }
 
+    update() {
+        if (this._state == 1) {
+            this.make_alive();
+        } else {
+            this.make_dead();
+        }
+    }
     alive() {
         return this._state == 1;
     }
