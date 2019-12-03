@@ -5,7 +5,7 @@
  */
 class Life {
 
-    constructor(columns= 100, rows = 50) {
+    constructor(columns = 100, rows = 100) {
         this._table = null;
         this._columns = columns;
         this._rows = rows;
@@ -14,6 +14,9 @@ class Life {
         this._wait_time = 100;
         this._mouse = false;
 
+        this._live_cells = 0;
+        this._live_cells_display = null;
+
         this._generation_display = null;
         this._generation = 0;
     }
@@ -21,11 +24,13 @@ class Life {
     init() {
         this._table = document.getElementById('world');
         this._generation_display = document.getElementById('generation');
+        this._live_cells_display = document.getElementById('live-cells');
+
+        this._live_cells_display.innerHTML = '0';
+        this._generation_display.innerHTML = '0';
 
         this.create_grid();
         this.seed_random();
-        this.iterate();
-
     }
 
     clear() {
@@ -37,17 +42,32 @@ class Life {
         }
 
         this._generation = 0;
+        this._generation_display.innerHTML = '0';
+
+        this._live_cells = 0;
+        this._live_cells_display.innerHTML = '0';
     }
 
     /**
     * Randomly places live cells through the map
     */
     seed_random() {
-          for (var i = 0; i < this._rows; i++) {
+
+        this._generation = 0;
+        this._generation_display.innerHTML = '0';
+        this._live_cells = 0;
+
+        for (var i = 0; i < this._rows; i++) {
             for (var j = 0; j < this._columns; j++) {
-                this._cells[i][j]._state = Math.floor(Math.random()*1.08);
+                this._cells[i][j]._state = Math.floor(Math.random() * 1.3);
+                if (this._cells[i][j]._state === 1) {
+                    this._cells[i][j].make_alive()
+                    this._live_cells += 1;
+                }
             }
         }
+        this._live_cells_display.innerHTML = this._live_cells;
+
     }
 
     /**
@@ -61,15 +81,15 @@ class Life {
             let line = document.createElement('tr');
             this._cells[i] = [];
             for (let j = 0; j < this._columns; j++) {
-              let cell = new Cell();
-      
-              line.appendChild(cell.element);
-              this._cells[i][j] = cell; 
+                let cell = new Cell();
+
+                line.appendChild(cell.element);
+                this._cells[i][j] = cell;
             }
             table.appendChild(line);
-          }
+        }
 
-          this._table.appendChild(table);
+        this._table.appendChild(table);
     }
 
     /**
@@ -85,13 +105,16 @@ class Life {
 
         for (var i = 0; i < this._rows; i++) {
             for (var j = 0; j < this._columns; j++) {
-                
+
                 this._cells[i][j]._state = this._cells[i][j]._new_state;
             }
         }
 
+        this._generation_display.innerHTML = this._generation++;
+        this._live_cells_display.innerHTML = this._live_cells;
+
         if (this._running) {
-            setTimeout(function() { life.iterate(); }, this._wait_time);
+            setTimeout(function () { life.iterate(); }, this._wait_time);
         }
 
     }
@@ -105,15 +128,33 @@ class Life {
 
         var neighbours = this.get_neighbours(i, j);
 
-        if (neighbours == 0 || neighbours == 1 || neighbours > 3) {
+
+        if (this._cells[i][j].alive()) {
+
+            if (neighbours != 3 && neighbours != 2) {
+                //we are killing this cell
+                if (this._cells[i][j].alive()) {
+                    this._live_cells--;
+                }
+
+                this._cells[i][j]._new_state = 0;
+                this._cells[i][j].make_dead();
+            }
+        } else if (!this._cells[i][j].alive()) {
+
+            if (neighbours == 3) {
+                //we are reviving this cell
+                if (!this._cells[i][j].alive()) {
+                    this._live_cells++;
+                }
+
+                this._cells[i][j]._new_state = 1;
+                this._cells[i][j].make_alive();
+            }
+
+        } else {
             this._cells[i][j]._new_state = 0;
             this._cells[i][j].make_dead();
-        }
-        else { 
-            if (neighbours == 3) {
-            this._cells[i][j]._new_state = 1;
-            this._cells[i][j].make_alive();
-            }
         }
     }
 
@@ -126,23 +167,23 @@ class Life {
         var neighbours = 0;
 
         if (this._cells[i - 1] != undefined) {
-          neighbours +=
-          (this._cells[i - 1][j - 1] == undefined ? 0 : this._cells[i - 1][j - 1].state) +
-          (this._cells[i - 1][j] == undefined ? 0 : this._cells[i - 1][j].state) +
-          (this._cells[i - 1][j + 1] == undefined ? 0 : this._cells[i - 1][j + 1].state);
+            neighbours +=
+                (this._cells[i - 1][j - 1] == undefined ? 0 : this._cells[i - 1][j - 1].state) +
+                (this._cells[i - 1][j] == undefined ? 0 : this._cells[i - 1][j].state) +
+                (this._cells[i - 1][j + 1] == undefined ? 0 : this._cells[i - 1][j + 1].state);
         }
-    
+
         neighbours +=
-        (this._cells[i][j - 1] == undefined ? 0 : this._cells[i][j - 1].state) +
-        (this._cells[i][j + 1] == undefined ? 0 : this._cells[i][j + 1].state);
-    
+            (this._cells[i][j - 1] == undefined ? 0 : this._cells[i][j - 1].state) +
+            (this._cells[i][j + 1] == undefined ? 0 : this._cells[i][j + 1].state);
+
         if (this._cells[i + 1] != undefined) {
-          neighbours +=
-          (this._cells[i + 1][j - 1] == undefined ? 0 : this._cells[i + 1][j - 1].state) +
-          (this._cells[i + 1][j] == undefined ? 0 : this._cells[i + 1][j].state) +
-          (this._cells[i + 1][j + 1] == undefined ? 0 : this._cells[i + 1][j + 1].state);
+            neighbours +=
+                (this._cells[i + 1][j - 1] == undefined ? 0 : this._cells[i + 1][j - 1].state) +
+                (this._cells[i + 1][j] == undefined ? 0 : this._cells[i + 1][j].state) +
+                (this._cells[i + 1][j + 1] == undefined ? 0 : this._cells[i + 1][j + 1].state);
         }
-    
+
         return neighbours;
     }
 
@@ -177,8 +218,8 @@ class Life {
     * Event handler: Randomly seed map button.
     */
     button_seed() {
+        this.clear();
         this.seed_random();
-        this.iterate();
     }
 
     mouse_down_handler(i, j, event) {
@@ -198,7 +239,7 @@ class Life {
             this._cells[i][j].toggle_state();
         }
     }
-    
+
 };
 
 /**
@@ -209,8 +250,12 @@ class Cell {
         this._element = document.createElement('td')
         this._state = 0;
         this._new_state = 0;
-        this._element.addEventListener('click', function(e){this.toggle_state();}.bind(this, event))
-   
+        this._element.addEventListener('click', function (e) { this.toggle_state(); }.bind(this, event))
+
+    }
+
+    alive() {
+        return this._state == 1;
     }
 
     set_background_color(color) {
@@ -256,9 +301,9 @@ class Cell {
     add_event(event, handler, capture) {
         if (/msie/i.test(navigator.userAgent)) {
             this._element.attachEvent('on' + event, handler);
-          } else {
+        } else {
             this._addEventListener(event, handler, capture);
-          }
+        }
     }
 };
 
@@ -268,9 +313,8 @@ class Cell {
  */
 //TODO make this an enum
 var Colors = {
-    dead : '#FFFFFF',
-    visited : '#B5ECA2',
-    alive : '#7272FF'
+    dead: '#FFFFFF',
+    alive: '#7272FF'
 };
 
 var life = new Life();
@@ -278,6 +322,6 @@ var life = new Life();
 /**
  * Starts Life when the page loads
  */
-window.onload = function() {
+window.onload = function () {
     life.init();
-  }
+}
