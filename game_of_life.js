@@ -19,15 +19,20 @@ class Life {
 
         this._generation_display = null;
         this._generation = 0;
+
+        this._time_display = null;
+        this._time = 0;
     }
 
     init() {
         this._table = document.getElementById('world');
         this._generation_display = document.getElementById('generation');
         this._live_cells_display = document.getElementById('live-cells');
+        this._time_display = document.getElementById('time-display');
 
         this._live_cells_display.innerHTML = '0';
         this._generation_display.innerHTML = '0';
+        this._time_display.innerHTML = '0';
 
         this.create_grid();
         this.seed_random();
@@ -47,6 +52,9 @@ class Life {
 
         this._live_cells = 0;
         this._live_cells_display.innerHTML = '0';
+
+        this._time = 0;
+        this._time_display.innerHTML = '0';
     }
 
     /**
@@ -98,6 +106,9 @@ class Life {
     */
     iterate() {
 
+        let start = (new Date).getMilliseconds();
+
+
         for (var i = 0; i < this._rows; i++) {
             for (var j = 0; j < this._columns; j++) {
                 this.check_state(i, j);
@@ -114,6 +125,9 @@ class Life {
 
         this._generation_display.innerHTML = this._generation++;
         this._live_cells_display.innerHTML = this._live_cells;
+
+        this._time = (new Date).getMilliseconds() - start;
+        this._time_display.innerHTML = this._time;
 
         if (this._running) {
             setTimeout(function () { life.iterate(); }, this._wait_time);
