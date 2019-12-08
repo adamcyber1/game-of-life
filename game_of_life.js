@@ -204,9 +204,6 @@ class Life {
 
             if (neighbours != 3 && neighbours != 2) {
                 //we are killing this cell
-                if (this._cells[i][j].alive()) {
-                    this._live_cells -= 1;
-                }
 
                 this._cells[i][j]._new_state = 0;
                 this._cells[i][j].set_background_color(Colors.dead);
@@ -215,21 +212,21 @@ class Life {
 
             if (neighbours == 3) {
                 //we are reviving this cell
-                if (!this._cells[i][j].alive()) {
-                    this._live_cells += 1;
-                }
-
                 this._cells[i][j]._new_state = 1;
                 this._cells[i][j].set_background_color(Colors.alive);
             }
 
         } else {
             this._cells[i][j]._new_state = 0;
-            if (this._cells[i][j]._state == 1) {
-                this._live_cells -= 1;
-            }
             this._cells[i][j].set_background_color(Colors.dead);
         }
+
+        if (this._cells[i][j]._state == 1 &&  this._cells[i][j]._new_state == 0) {
+            this._live_cells -= 1;
+        } else if (this._cells[i][j]._state == 0 &&  this._cells[i][j]._new_state == 1) {
+            this._live_cells += 1;
+        }
+
     }
 
     /**
@@ -361,7 +358,7 @@ class Cell {
     }
 
     set new_state(new_state) {
-        this._new_State = new_state
+        this._new_state = new_state
     }
 
     add_event(event, handler, capture) {
