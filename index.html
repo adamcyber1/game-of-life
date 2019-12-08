@@ -2,6 +2,7 @@
 <html>
 
 <head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
   
 
  <link href="style.css" rel="stylesheet" type="text/css">
@@ -13,11 +14,15 @@
   <input type="button" onclick="life.button_run(this)" value="Run" id="buttonRun" />
   <input type="button" onclick="life.button_clear()" value="Clear" id="buttonClear" />
   <input type="button" onclick="life.button_seed()" value="Seed" id="buttonSeed" />
+  
   <p>Generation: <span id="generation">0</span></p>
   <p>Live Cells: <span id="live-cells">0</span></p>
   <p>Iteration Time: <span id="time-display">0</span></p>
 
-  <canvas id="cell-stats"></canvas>
+  <div class="row">
+ <div class="col-sm-4"><canvas id="cell-stats"></canvas></div>
+ <div class="col-sm-4"><canvas id="time-stats"></canvas></div>
+  </div>
   
 
 

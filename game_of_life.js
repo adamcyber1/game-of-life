@@ -6,7 +6,7 @@
  */
 class Life {
 
-    constructor(columns = 10, rows = 10) {
+    constructor(columns = 200, rows = 100) {
         this._table = null;
         this._columns = columns;
         this._rows = rows;
@@ -26,6 +26,9 @@ class Life {
 
         this._live_cells_chart_element = null;
         this._live_cells_chart = null;
+
+        this._execution_time_chart_element = null;
+        this._execution_time_chart = null;
     }
 
     init() {
@@ -34,23 +37,63 @@ class Life {
         this._live_cells_display = document.getElementById('live-cells');
         this._time_display = document.getElementById('time-display');
         this._live_cells_chart_element = document.getElementById('cell-stats').getContext('2d');
-        this._live_cells_chart_element.canvas.height = 20;
+        this._execution_time_chart_element = document.getElementById('time-stats').getContext('2d');
+
+        this._live_cells_chart_element.canvas.height = 30;
         this._live_cells_chart_element.canvas.width = 80;
-
-
+        this._execution_time_chart_element.canvas.height = 30;
+        this._execution_time_chart_element.canvas.width = 80;
 
         this._live_cells_display.innerHTML = '0';
         this._generation_display.innerHTML = '0';
         this._time_display.innerHTML = '0';
         this._live_cells_chart = new Chart(this._live_cells_chart_element, {
-            // The type of chart we want to create
             type: 'line',
-        
-            // The data for our dataset
             data: {
                 labels: [],
                 datasets: [{
                     label: 'Live Cells',
+                    borderColor: 'rgb(255, 99, 132)',
+                    data: []
+                }]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        scaleLabel: {
+							display: true,
+							labelString: 'Generations'
+						},
+                        display: true,
+                        ticks: {
+                            autoSkip: true,
+                            maxTicksLimit: 24,
+                            min: 0,
+                            beginAtZero: true,
+
+                        }   
+                    }],
+                    yAxes: [{
+                        scaleLabel: {
+							display: true,
+							labelString: 'Live Cells'
+						},
+                        display: true,
+                        ticks: {
+                            min: 0
+                        }
+                    }]
+
+                }
+            }
+        });
+
+        this._execution_time_chart = new Chart(this._execution_time_chart_element, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Execution Time',
                     borderColor: 'rgb(255, 99, 132)',
                     data: []
                 }]
@@ -60,10 +103,30 @@ class Life {
             options: {
                 scales: {
                     xAxes: [{
+                        scaleLabel: {
+							display: true,
+							labelString: 'Generations'
+						},
+                        display: true,
                         ticks: {
-                            stepSize: 100
+                            autoSkip: true,
+                            maxTicksLimit: 24,
+                            min: 0,
+                            beginAtZero: true,
+
+                        }   
+                    }],
+                    yAxes: [{
+                        scaleLabel: {
+							display: true,
+							labelString: 'Execution time (ms)'
+						},
+                        display: true,
+                        ticks: {
+                            min: 0
                         }
                     }]
+
                 }
             }
         });
@@ -108,6 +171,7 @@ class Life {
 
 
         this.clear_chart(this._live_cells_chart);
+        this.clear_chart(this._execution_time_chart);
     }
 
     /**
@@ -129,6 +193,8 @@ class Life {
             }
         }
         this._live_cells_display.innerHTML = this._live_cells;
+
+        this.add_data(this._live_cells_chart, 0, this._live_cells);
 
     }
 
@@ -183,6 +249,7 @@ class Life {
         this._time_display.innerHTML = this._time;
 
         this.add_data(this._live_cells_chart, this._generation, this._live_cells);
+        this.add_data(this._execution_time_chart, this._generation, this._time);
 
         if (this._running) {
             setTimeout(function () { life.iterate(); }, this._wait_time);
