@@ -1,11 +1,12 @@
 "use strict"
 
+
 /**
  * A standard Conway's Game of Life Implementation
  */
 class Life {
 
-    constructor(columns = 40, rows = 40) {
+    constructor(columns = 10, rows = 10) {
         this._table = null;
         this._columns = columns;
         this._rows = rows;
@@ -22,6 +23,9 @@ class Life {
 
         this._time_display = null;
         this._time = 0;
+
+        this._live_cells_chart_element = null;
+        this._live_cells_chart = null;
     }
 
     init() {
@@ -29,13 +33,59 @@ class Life {
         this._generation_display = document.getElementById('generation');
         this._live_cells_display = document.getElementById('live-cells');
         this._time_display = document.getElementById('time-display');
+        this._live_cells_chart_element = document.getElementById('cell-stats').getContext('2d');
+        this._live_cells_chart_element.canvas.height = 20;
+        this._live_cells_chart_element.canvas.width = 80;
+
+
 
         this._live_cells_display.innerHTML = '0';
         this._generation_display.innerHTML = '0';
         this._time_display.innerHTML = '0';
+        this._live_cells_chart = new Chart(this._live_cells_chart_element, {
+            // The type of chart we want to create
+            type: 'line',
+        
+            // The data for our dataset
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Live Cells',
+                    borderColor: 'rgb(255, 99, 132)',
+                    data: []
+                }]
+            },
+        
+            // Configuration options go here
+            options: {
+                scales: {
+                    xAxes: [{
+                        ticks: {
+                            stepSize: 100
+                        }
+                    }]
+                }
+            }
+        });
 
         this.create_grid();
         this.seed_random();
+    }
+
+    add_data(chart, label, data) {
+        chart.data.labels.push(label);
+        chart.data.datasets.forEach((dataset) => {
+            dataset.data.push(data);
+        });
+        chart.update();
+    }
+
+    clear_chart(chart) {
+        chart.data.labels = [];
+        chart.data.datasets.forEach((dataset) => {
+            dataset.data = [];
+        });
+        chart.update();
     }
 
     clear() {
@@ -55,6 +105,9 @@ class Life {
 
         this._time = 0;
         this._time_display.innerHTML = '0';
+
+
+        this.clear_chart(this._live_cells_chart);
     }
 
     /**
@@ -129,6 +182,8 @@ class Life {
         this._time = (new Date).getMilliseconds() - start;
         this._time_display.innerHTML = this._time;
 
+        this.add_data(this._live_cells_chart, this._generation, this._live_cells);
+
         if (this._running) {
             setTimeout(function () { life.iterate(); }, this._wait_time);
         }
@@ -150,7 +205,7 @@ class Life {
             if (neighbours != 3 && neighbours != 2) {
                 //we are killing this cell
                 if (this._cells[i][j].alive()) {
-                    this._live_cells--;
+                    this._live_cells -= 1;
                 }
 
                 this._cells[i][j]._new_state = 0;
@@ -161,7 +216,7 @@ class Life {
             if (neighbours == 3) {
                 //we are reviving this cell
                 if (!this._cells[i][j].alive()) {
-                    this._live_cells++;
+                    this._live_cells += 1;
                 }
 
                 this._cells[i][j]._new_state = 1;
@@ -170,6 +225,9 @@ class Life {
 
         } else {
             this._cells[i][j]._new_state = 0;
+            if (this._cells[i][j]._state == 1) {
+                this._live_cells -= 1;
+            }
             this._cells[i][j].set_background_color(Colors.dead);
         }
     }
@@ -237,24 +295,6 @@ class Life {
     button_seed() {
         this.clear();
         this.seed_random();
-    }
-
-    mouse_down_handler(i, j, event) {
-        this._mouse = true;
-        this._cells[i][j].toggle_state();
-    }
-
-    mouse_up_handler() {
-        this._mouse = false;
-    }
-
-    /**
-    * Event handler: Mouse click over Cell
-    */
-    mouse_over_handler(i, j, event) {
-        if (this._mouse) {
-            this._cells[i][j].toggle_state();
-        }
     }
 
 };
